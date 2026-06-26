@@ -73,6 +73,114 @@ Download the demo video from this repository:
 
 ---
 
+## 🗂️ Sample Asset Structure
+
+```text
+Powerbi-Chocolate-Sales-Dashboard/
+├── Chocolate Sales Dashboard.pbix
+├── dashboard-preview.png
+├── dashboard-demo.mp4
+├── images/
+│   ├── overview.png
+│   ├── country-analysis.png
+│   └── product-performance.png
+├── data/
+│   └── sample-sales-data.xlsx
+├── README.md
+└── LICENSE
+```
+
+> `images/` and `data/` are optional but recommended for better project organization and sharing.
+
+---
+
+## 🧩 Data Model
+
+The dashboard follows a star-schema style model for efficient filtering and KPI calculation.
+
+### Core Tables
+
+- **Fact_Sales** (transaction-level data)
+  - Date
+  - Product
+  - Country
+  - Sales Amount
+  - Profit
+  - Boxes/Quantity
+  - Shipment ID
+
+- **Dim_Date** (calendar table)
+  - Date
+  - Month
+  - Quarter
+  - Year
+  - Month-Year (for trend visuals)
+
+- **Dim_Product**
+  - Product Name
+  - Category / Segment
+  - Cost (if available)
+
+- **Dim_Country**
+  - Country
+  - Region / Market (if available)
+
+### Relationships
+
+- `Fact_Sales[Date]` → `Dim_Date[Date]` (Many-to-One)
+- `Fact_Sales[Product]` → `Dim_Product[Product Name]` (Many-to-One)
+- `Fact_Sales[Country]` → `Dim_Country[Country]` (Many-to-One)
+
+This structure enables:
+- Fast time-intelligence calculations
+- Accurate slicer behavior
+- Better maintainability and scalability
+
+---
+
+## 🧠 Top DAX Measures
+
+```DAX
+Total Sales = SUM(Fact_Sales[Sales Amount])
+```
+Returns the total revenue across current filter context.
+
+```DAX
+Total Profit = SUM(Fact_Sales[Profit])
+```
+Calculates total profit for selected period/products/countries.
+
+```DAX
+Total Boxes = SUM(Fact_Sales[Boxes])
+```
+Tracks total unit volume sold.
+
+```DAX
+Total Shipments = DISTINCTCOUNT(Fact_Sales[Shipment ID])
+```
+Counts unique shipments to measure logistics activity.
+
+```DAX
+Profit % = DIVIDE([Total Profit], [Total Sales], 0)
+```
+Shows profit margin safely (avoids divide-by-zero errors).
+
+```DAX
+Sales MoM % =
+VAR PrevMonthSales =
+    CALCULATE([Total Sales], DATEADD(Dim_Date[Date], -1, MONTH))
+RETURN
+    DIVIDE([Total Sales] - PrevMonthSales, PrevMonthSales, 0)
+```
+Measures month-over-month sales growth rate.
+
+```DAX
+Sales YTD = TOTALYTD([Total Sales], Dim_Date[Date])
+```
+Computes cumulative year-to-date sales.
+
+---
+
 ## 💡 Skills Demonstrated
 
 - Data Cleaning
@@ -82,6 +190,15 @@ Download the demo video from this repository:
 - Business Intelligence
 - Dashboard Design
 - Data Visualization
+
+---
+
+## 📈 Business Insights
+
+- A small group of products contributes a large share of overall revenue.
+- Some countries consistently outperform others in both sales and profitability.
+- Sales show noticeable periodic peaks, indicating seasonal demand patterns.
+- High shipment volume does not always align with high profit %, highlighting margin optimization opportunities.
 
 ---
 
@@ -106,3 +223,10 @@ Aspiring Data Analyst
 - Python
 
 ⭐ If you found this project useful, consider giving it a Star.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.  
+See the [LICENSE](LICENSE) file for details.
